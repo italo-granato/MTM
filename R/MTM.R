@@ -46,7 +46,7 @@
 #' @export
 MTM <- function(Y, XF = NULL, K = NULL,
                 resCov = list(type = "UN", df0 = 0, S0 = diag(0,ncol(as.matrix(Y)))),
-                nIter = 110, burnIn = 10, thin = 2, saveAt = "", tolD = 1e-05) {
+                nIter = 110, burnIn = 10, thin = 2, saveAt = "", tolD = 1e-05, verbose = FALSE) {
 
     if ((nIter - burnIn - thin) < 0) {
         stop("nIter must be greater than thin+burnIn")
@@ -393,11 +393,13 @@ MTM <- function(Y, XF = NULL, K = NULL,
                 }
             }
         }
-
-        tmp <- proc.time()[3]
+        
+      tmp <- proc.time()[3]
+      if(verbose){        
         cat(paste("Iter: ", i, "time: ", (round(tmp - time, 4))))
         cat("\n")
         cat("\n")
+        }
         time <- tmp
     }
 
