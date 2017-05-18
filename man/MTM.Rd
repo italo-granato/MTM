@@ -7,7 +7,7 @@ Sampler.}
 \usage{
 MTM(Y, XF = NULL, K = NULL, resCov = list(type = "UN", df0 = 0, S0 =
   diag(0, ncol(as.matrix(Y)))), nIter = 110, burnIn = 10, thin = 2,
-  saveAt = "", tolD = 1e-05)
+  saveAt = "", tolD = 1e-05, verbose = FALSE)
 }
 \arguments{
 \item{Y}{Phenotype matrix (nxp numeric, traits (p) in columns, individuals
@@ -39,6 +39,8 @@ current directory and filenames have no prefix.}
 \item{tolD}{A numeric parameter used to define the minimum eigenvalue to be
 maintained in the model. Eigenvectors of kernels smaller than tolD are
 removed. The default value is tolD=1e-6.}
+}
+\item{verbose}{Logical should verbose be printed?}
 }
 \value{
 List containing estimated posterior means and estimated posterior
