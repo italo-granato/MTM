@@ -402,6 +402,7 @@ MTM <- function(Y, XF = NULL, K = NULL,
         cat(paste("Iter: ", i, "time: ", (round(tmp - time, 4))))
         cat("\n")
         cat("\n")
+        }
         time <- tmp
         }
     }

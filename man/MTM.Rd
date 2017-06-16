@@ -42,6 +42,8 @@ removed. The default value is tolD=1e-6.}
 
 \item{verbose}{Should verbose be printed?}
 }
+\item{verbose}{Logical should verbose be printed?}
+}
 \value{
 List containing estimated posterior means and estimated posterior
   standard deviations, including: $yHat.
