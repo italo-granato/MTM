@@ -40,13 +40,14 @@
 #' @param tolD A numeric parameter used to define the minimum eigenvalue to be
 #'   maintained in the model. Eigenvectors of kernels smaller than tolD are
 #'   removed. The default value is tolD=1e-6.
+#' @param verbose Should verbose be printed?
 #' @example examples/MTM.R
 #' @return List containing estimated posterior means and estimated posterior
 #'   standard deviations, including: $yHat.
 #' @export
 MTM <- function(Y, XF = NULL, K = NULL,
                 resCov = list(type = "UN", df0 = 0, S0 = diag(0,ncol(as.matrix(Y)))),
-                nIter = 110, burnIn = 10, thin = 2, saveAt = "", tolD = 1e-05) {
+                nIter = 110, burnIn = 10, thin = 2, saveAt = "", tolD = 1e-05, verbose = TRUE) {
 
     if ((nIter - burnIn - thin) < 0) {
         stop("nIter must be greater than thin+burnIn")
@@ -85,12 +86,13 @@ MTM <- function(Y, XF = NULL, K = NULL,
     E <- t(t(YStar) - mu)
 
     ## Initializing Fixed effects
+    #' @import stats
     if (hasXF) {
         XF <- as.matrix(XF)
         dimX.f <- ncol(XF)
         tmp <- eigen(crossprod(XF))
         if (any(tmp$values < 0)) {
-            Stop("XF is not full-column rank")
+            stop("XF is not full-column rank")
         }
         Tb.f <- tmp$vectors %*% diag(1/sqrt(tmp$values))
         XTb.f <- XF %*% Tb.f
@@ -207,7 +209,8 @@ MTM <- function(Y, XF = NULL, K = NULL,
                     tmp <- tmp$U0/sqrt(K[[k]]$d)
                     SS <- crossprod(tmp) + K[[k]]$COV$S0
                     df <- K[[k]]$nD + K[[k]]$COV$df0
-                    K[[k]]$G <- MCMCpack::riwish(S = SS, v = df)
+                    #' @importFrom MCMCpack riwish
+                    K[[k]]$G <- riwish(S = SS, v = df)
                   }
 
                   if (K[[k]]$COV$type == "REC") {
@@ -249,7 +252,7 @@ MTM <- function(Y, XF = NULL, K = NULL,
         if (resCov$type == "UN") {
             SS <- crossprod(E) + resCov$S0
             df <- n + resCov$df0
-            resCov$R <- MCMCpack::riwish(v = df, S = SS)
+            resCov$R <- riwish(v = df, S = SS)
             resCov$L <- chol(resCov$R)
             resCov$RInv <- chol2inv(resCov$L)
         }
@@ -346,8 +349,8 @@ MTM <- function(Y, XF = NULL, K = NULL,
             fileName <- paste(saveAt, "logLik.dat", sep = "")
             write(tmp, ncol = length(tmp), file = fileName, append = T, sep = " ")
 
-
-            tmp <- MCMCpack::vech(resCov$R)
+            #' @importFrom MCMCpack vech
+            tmp <- vech(resCov$R)
             fileName <- paste(saveAt, "R.dat", sep = "")
             write(tmp, ncol = length(tmp), file = fileName, append = T, sep = " ")
 
@@ -375,7 +378,7 @@ MTM <- function(Y, XF = NULL, K = NULL,
 
             if (hasK) {
                 for (k in 1:nK) {
-                  tmp <- MCMCpack::vech(K[[k]]$G)
+                  tmp <- vech(K[[k]]$G)
                   fileName <- paste(saveAt, "G_", k, ".dat", sep = "")
                   write(tmp, ncol = length(tmp), file = fileName, append = T, sep = " ")
 
@@ -394,11 +397,13 @@ MTM <- function(Y, XF = NULL, K = NULL,
             }
         }
 
+        if(verbose){
         tmp <- proc.time()[3]
         cat(paste("Iter: ", i, "time: ", (round(tmp - time, 4))))
         cat("\n")
         cat("\n")
         time <- tmp
+        }
     }
 
     tmp <- list()
